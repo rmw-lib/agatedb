@@ -26,6 +26,7 @@ thiserror = "1.0.31"
 yatp = { git = "https://github.com/tikv/yatp.git" }
 
 [dev-dependencies]
+clap = { version = "3.2.8", features = ["cargo"] }
 criterion = "0.3.5"
 tempfile = "3.3.0"
 

@@ -195,6 +195,8 @@ impl AgateOptions {
         if self.in_memory {
             // TODO: find a way to check if path is set, if set, then panic with ConfigError
             self.sync_writes = false;
+        } else if self.value_dir.as_path().to_string_lossy().is_empty() {
+            self.value_dir = self.dir.clone();
         }
 
         self.max_batch_size = (15 * self.mem_table_size) / 100;
