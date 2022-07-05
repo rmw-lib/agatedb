@@ -27,6 +27,7 @@ pub use error::{Error, Result};
 pub use format::{get_ts, key_with_ts};
 pub use iterator::IteratorOptions;
 pub use iterator_trait::AgateIterator;
+pub use ops::transaction::Transaction;
 pub use opt::{ChecksumVerificationMode, Options as TableOptions};
 pub use skiplist::Skiplist;
 pub use table::{
