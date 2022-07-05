@@ -1,6 +1,9 @@
 
 SANITIZER_FLAGS=-Zsanitizer=address
 
+upgrade:
+	cargo upgrade --workspace
+
 pre-format:
 	@rustup component add rustfmt
 	@cargo install -q cargo-sort
