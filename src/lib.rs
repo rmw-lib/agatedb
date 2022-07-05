@@ -34,4 +34,4 @@ pub use table::{
     builder::Builder as TableBuilder, merge_iterator::Iterators, ConcatIterator, MergeIterator,
     Table,
 };
-pub use value::Value;
+pub use value::{Request, Value};
