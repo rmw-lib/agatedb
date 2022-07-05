@@ -31,6 +31,7 @@ fn main() {
 
     let db = AgateOptions {
         dir: db_path.clone(),
+        create_if_not_exists: true,
         checksum_mode: NoVerification,
         ..Default::default()
     }
