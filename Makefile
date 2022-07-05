@@ -33,6 +33,6 @@ cli:
 	cargo build --release --example cli
 
 dev_cli:
-	RUST_BACKTRACE=1 watchexec --shell=none -w . -c -r --exts rs,toml --ignore target/ -- cargo run --example cli target/db
+	RUST_BACKTRACE=1 watchexec --shell=none -w . -c -r --exts rs,toml --ignore target/ -- cargo run --example cli target/db ls
 
 .PHONY: run clean format clippy test dev
