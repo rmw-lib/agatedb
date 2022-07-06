@@ -29,6 +29,12 @@ bench_sanitizer:
 
 dev: format clippy test
 
+cli:
+	cargo build --release --example cli
+
+dev_cli:
+	RUST_BACKTRACE=1 watchexec --shell=none -w . -c -r --exts rs,toml --ignore target/ -- cargo run --example cli target/db ls
+
 clean:
 	cargo clean
 
