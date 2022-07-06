@@ -12,6 +12,9 @@ format: pre-format
 	@cargo fmt
 	@cargo sort -w ./Cargo.toml ./*/Cargo.toml > /dev/null
 
+doc:
+	cargo doc --open
+
 clippy:
 	cargo clippy --all-targets --all-features --workspace -- -D "warnings"
 
