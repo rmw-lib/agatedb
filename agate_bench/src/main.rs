@@ -136,7 +136,6 @@ fn main() {
                 let chunk_size: u64 = sub_matches.value_of("chunk_size").unwrap().parse().unwrap();
 
                 let mut options = AgateOptions {
-                    create_if_not_exists: true,
                     dir: directory.clone(),
                     value_dir: directory,
                     managed_txns: true,
@@ -209,7 +208,6 @@ fn main() {
                 let times: u64 = sub_matches.value_of("times").unwrap().parse().unwrap();
 
                 let mut options = AgateOptions {
-                    create_if_not_exists: true,
                     sync_writes: true,
                     dir: directory.clone(),
                     value_dir: directory,
@@ -287,7 +285,6 @@ fn main() {
                     sub_matches.value_of("value_size").unwrap().parse().unwrap();
 
                 let mut options = AgateOptions {
-                    create_if_not_exists: true,
                     sync_writes: true,
                     dir: directory.clone(),
                     value_dir: directory,
