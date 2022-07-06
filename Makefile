@@ -30,10 +30,10 @@ bench_sanitizer:
 dev: format clippy test
 
 cli:
-	cargo build --release --example cli
+	cd agatedb/adb && cargo build --release
 
 dev_cli:
-	RUST_BACKTRACE=1 watchexec --shell=none -w . -c -r --exts rs,toml --ignore target/ -- cargo run --example cli target/db ls
+	cd agatedb/adb && RUST_BACKTRACE=1 watchexec --shell=none -w . -c -r --exts rs,toml --ignore target/ -- cargo run -- ls
 
 clean:
 	cargo clean

@@ -32,7 +32,7 @@ tempfile = "3.3.0"
 tikv-jemallocator = "0.5.0"
 
 [workspace]
-members = ["agate_bench", "proto", "skiplist"]
+members = ["agate_bench", "proto", "skiplist", "examples/adb"]
 
 [[bench]]
 name = "bench_common"
