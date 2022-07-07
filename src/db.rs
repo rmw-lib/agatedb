@@ -87,14 +87,14 @@ impl FlushTask {
 
 impl Agate {
     /*
-      pub fn get_with_ts(&self, key: &[u8], ts: u64) -> Result<Option<Bytes>> {
-          let key = format::key_with_ts(key, ts);
-          let view = self.core.memtable.view();
-          if let Some(value) = view.get(&key) {
-              return Ok(Some(value.clone()));
-          }
-          unimplemented!()
-      }
+    pub fn get_with_ts(&self, key: &[u8], ts: u64) -> Result<Option<Bytes>> {
+    let key = format::key_with_ts(key, ts);
+    let view = self.core.memtable.view();
+    if let Some(value) = view.get(&key) {
+    return Ok(Some(value.clone()));
+    }
+    unimplemented!()
+    }
     */
     fn new(core: Arc<Core>) -> Self {
         let closer = Closer::new();
@@ -131,18 +131,13 @@ impl Agate {
     }
 
     pub fn get(&self, key: impl Into<BytesMut>) -> Result<Value> {
-        let key = key_with_ts(key.into(), 0);
+        let key = key_with_ts(key.into(), unix_time());
         self.core.get(&key)
     }
 
-    pub fn put(&self, key: impl Into<BytesMut>, value: impl Into<Bytes>) -> Result<()> {
+    pub fn set(&self, key: impl Into<BytesMut>, value: impl Into<Bytes>) -> Result<()> {
         let key = key_with_ts(key.into(), 0);
-        let req = Request {
-            entries: vec![Entry::new(key, value.into())],
-            ptrs: vec![],
-            done: None,
-        };
-        self.write_to_lsm(req)
+        self.update(move |tx| tx.set(key.into(), value.into()))
     }
 
     pub fn write_to_lsm(&self, request: Request) -> Result<()> {

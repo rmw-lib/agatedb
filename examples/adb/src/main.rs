@@ -16,7 +16,7 @@ macro_rules! str {
   };
 }
 
-str!(db_path, ls, prefix, put, key, val, get);
+str!(db_path, ls, prefix, set, key, val, get);
 
 macro_rules! get {
     ($matches:expr, $key:expr) => {{ $matches.get_one::<String>($key) }};
@@ -63,7 +63,7 @@ fn main() -> Result<()> {
             (PUT, matches) => {
                 let key = get!(matches, KEY).unwrap().as_bytes();
                 let val = get!(matches, VAL).unwrap().as_bytes().to_vec();
-                db.put(key, val)?;
+                db.set(key, val)?;
             }
 
             (GET, matches) => {
