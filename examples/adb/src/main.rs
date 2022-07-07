@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use agatedb::{AgateOptions, ChecksumVerificationMode::NoVerification};
+use anyhow::Result;
 use clap::{arg, command, value_parser, Command};
 use paste::paste;
 
@@ -15,35 +16,43 @@ macro_rules! str {
   };
 }
 
-str!(db_path, ls, table, set);
+str!(db_path, ls, prefix, put, key, val);
 
-fn main() {
+macro_rules! get {
+    ($matches:expr, $key:expr) => {
+        $matches.get_one::<Box<[u8]>>($key)
+    };
+}
+
+fn main() -> Result<()> {
     let matches = command!()
-        .arg(arg!(<DB_PATH> "agatedb database path").value_parser(value_parser!(PathBuf)))
+        .arg(arg!(<db_path> "agatedb database path").value_parser(value_parser!(PathBuf)))
         .subcommand(
             Command::new(LS)
                 .about("list all keys-value")
-                .arg(arg!([PREFIX] "list key-value where key match prefix")),
+                .arg(arg!([prefix] "list key-value where key match prefix")),
         )
         .subcommand(
-            Command::new(SET)
+            Command::new(PUT)
                 .about("set key value")
                 .arg(arg!(<key>))
-                .arg(arg!(<value>)),
+                .arg(arg!(<val>)),
         )
         .get_matches();
 
     let db_path = matches.get_one::<PathBuf>(DB_PATH).unwrap();
 
-    let db = AgateOptions {
-        dir: db_path.clone(),
-        checksum_mode: NoVerification,
-        ..Default::default()
-    }
-    .open();
+    let db = Arc::new(
+        AgateOptions {
+            dir: db_path.clone(),
+            checksum_mode: NoVerification,
+            ..Default::default()
+        }
+        .open()?,
+    );
 
     match matches.subcommand() {
-        Some((LS, matches)) => match matches.get_one::<String>(TABLE) {
+        Some((LS, matches)) => match get!(matches, PREFIX) {
             Some(prefix) => {
                 println!("{} {:?}", LS, prefix);
             }
@@ -51,12 +60,18 @@ fn main() {
                 println!("{}", LS);
             }
         },
+        Some((PUT, matches)) => {
+            let key = &get!(matches, KEY).unwrap()[..];
+            let val = get!(matches, VAL).unwrap().clone();
+            db.put(key, val)?;
+        }
         None => {
+            println!("OPEN {}", db_path.display().to_string());
             print!("> ");
         }
         _ => {
             unreachable!("unkown cmd");
         }
     }
-    //println!("{}", db_path);
+    Ok(())
 }
