@@ -26,7 +26,7 @@ fn main() -> Result<()> {
     let matches = command!()
         .arg(arg!(<db_path> "agatedb database path").value_parser(value_parser!(PathBuf)))
         .subcommand(
-            Command::new(PUT)
+            Command::new(SET)
                 .about("set key value")
                 .arg(arg!(<key>))
                 .arg(arg!(<val>)),
@@ -60,7 +60,7 @@ fn main() -> Result<()> {
                     println!("{}", LS);
                 }
             },
-            (PUT, matches) => {
+            (SET, matches) => {
                 let key = get!(matches, KEY).unwrap().as_bytes();
                 let val = get!(matches, VAL).unwrap().as_bytes().to_vec();
                 db.set(key, val)?;

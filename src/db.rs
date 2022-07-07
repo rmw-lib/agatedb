@@ -131,13 +131,19 @@ impl Agate {
     }
 
     pub fn get(&self, key: impl Into<BytesMut>) -> Result<Value> {
-        let key = key_with_ts(key.into(), unix_time());
+        let key = key_with_ts(key.into(), std::u64::MAX);
         self.core.get(&key)
     }
 
     pub fn set(&self, key: impl Into<BytesMut>, value: impl Into<Bytes>) -> Result<()> {
-        let key = key_with_ts(key.into(), 0);
-        self.update(move |tx| tx.set(key.into(), value.into()))
+        use crate::util::unix_time;
+        let key = key_with_ts(key.into(), unix_time());
+        let req = Request {
+            entries: vec![Entry::new(key, value.into())],
+            ptrs: vec![],
+            done: None,
+        };
+        self.write_to_lsm(req)
     }
 
     pub fn write_to_lsm(&self, request: Request) -> Result<()> {
