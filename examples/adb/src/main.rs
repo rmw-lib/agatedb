@@ -29,22 +29,25 @@ macro_rules! get {
     ($matches:expr, $key:expr) => {{ $matches.get_one::<String>($key) }};
 }
 
+fn cmd(cmd: Command) -> Command {
+    cmd.subcommand(
+        Command::new(SET)
+            .about("set key value")
+            .arg(arg!(<key>))
+            .arg(arg!(<val>)),
+    )
+    .subcommand(Command::new(GET).about("get key value").arg(arg!(<key>)))
+    .subcommand(
+        Command::new(LS)
+            .about("list all keys-value")
+            .arg(arg!([prefix] "list key-value where key match prefix")),
+    )
+}
+
 fn main() -> Result<()> {
-    let matches = command!()
-        .arg(arg!(<db_path> "agatedb database path").value_parser(value_parser!(PathBuf)))
-        .subcommand(
-            Command::new(SET)
-                .about("set key value")
-                .arg(arg!(<key>))
-                .arg(arg!(<val>)),
-        )
-        .subcommand(Command::new(GET).about("get key value").arg(arg!(<key>)))
-        .subcommand(
-            Command::new(LS)
-                .about("list all keys-value")
-                .arg(arg!([prefix] "list key-value where key match prefix")),
-        )
-        .get_matches();
+    let matches = cmd(command!()
+        .arg(arg!(<db_path> "agatedb database path").value_parser(value_parser!(PathBuf))))
+    .get_matches();
 
     let db_path = matches.get_one::<PathBuf>(DB_PATH).unwrap();
 
