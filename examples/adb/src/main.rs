@@ -16,27 +16,26 @@ macro_rules! str {
   };
 }
 
-str!(db_path, ls, prefix, put, key, val);
+str!(db_path, ls, prefix, put, key, val, get);
 
 macro_rules! get {
-    ($matches:expr, $key:expr) => {
-        $matches.get_one::<Box<[u8]>>($key)
-    };
+    ($matches:expr, $key:expr) => {{ $matches.get_one::<String>($key) }};
 }
 
 fn main() -> Result<()> {
     let matches = command!()
         .arg(arg!(<db_path> "agatedb database path").value_parser(value_parser!(PathBuf)))
         .subcommand(
-            Command::new(LS)
-                .about("list all keys-value")
-                .arg(arg!([prefix] "list key-value where key match prefix")),
-        )
-        .subcommand(
             Command::new(PUT)
                 .about("set key value")
                 .arg(arg!(<key>))
                 .arg(arg!(<val>)),
+        )
+        .subcommand(Command::new(GET).about("get key value").arg(arg!(<key>)))
+        .subcommand(
+            Command::new(LS)
+                .about("list all keys-value")
+                .arg(arg!([prefix] "list key-value where key match prefix")),
         )
         .get_matches();
 
@@ -51,27 +50,39 @@ fn main() -> Result<()> {
         .open()?,
     );
 
-    match matches.subcommand() {
-        Some((LS, matches)) => match get!(matches, PREFIX) {
-            Some(prefix) => {
-                println!("{} {:?}", LS, prefix);
+    if let Some(sub) = matches.subcommand() {
+        match sub {
+            (LS, matches) => match get!(matches, PREFIX) {
+                Some(prefix) => {
+                    println!("{} {:?}", LS, prefix);
+                }
+                None => {
+                    println!("{}", LS);
+                }
+            },
+            (PUT, matches) => {
+                let key = get!(matches, KEY).unwrap().as_bytes();
+                let val = get!(matches, VAL).unwrap().as_bytes().to_vec();
+                db.put(key, val)?;
             }
-            None => {
-                println!("{}", LS);
+
+            (GET, matches) => {
+                let key = get!(matches, KEY).unwrap().as_bytes();
+                let value = db.get(key)?;
+                dbg!(&value);
+                let key = match std::str::from_utf8(key) {
+                    Ok(k) => k.into(),
+                    _ => format!("{:?}", key),
+                };
+                println!("\n{} → {:?}", key, value.value)
             }
-        },
-        Some((PUT, matches)) => {
-            let key = &get!(matches, KEY).unwrap()[..];
-            let val = get!(matches, VAL).unwrap().clone();
-            db.put(key, val)?;
+            _ => {
+                unreachable!("unkown cmd");
+            }
         }
-        None => {
-            println!("OPEN {}", db_path.display().to_string());
-            print!("> ");
-        }
-        _ => {
-            unreachable!("unkown cmd");
-        }
+    } else {
+        println!("OPEN {}", db_path.display().to_string());
+        print!("> ");
     }
     Ok(())
 }

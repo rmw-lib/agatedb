@@ -192,6 +192,9 @@ impl AgateOptions {
         self.max_batch_size = (15 * self.mem_table_size) / 100;
         self.max_batch_count = self.max_batch_size / MAX_NODE_SIZE as u64;
 
+        if self.value_dir.display().to_string().is_empty() {
+            self.value_dir = self.dir.clone();
+        }
         Ok(())
     }
 
