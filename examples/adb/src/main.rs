@@ -60,13 +60,6 @@ fn main() -> Result<()> {
         .open()?,
     );
 
-    db.update(|tx| {
-        use agatedb::{key_with_ts, util::unix_time};
-        use bytes::BytesMut;
-        let key = key_with_ts(BytesMut::from("3"), unix_time());
-        tx.set(key, "2".into())
-    })?;
-
     if let Some(sub) = matches.subcommand() {
         match sub {
             (LS, matches) => match get!(matches, PREFIX) {
@@ -78,7 +71,7 @@ fn main() -> Result<()> {
                 }
             },
             (SET, matches) => {
-                let key = get!(matches, KEY).unwrap().as_bytes();
+                let key = get!(matches, KEY).unwrap().as_bytes().to_vec();
                 let val = get!(matches, VAL).unwrap().as_bytes().to_vec();
                 db.set(key, val)?;
             }
