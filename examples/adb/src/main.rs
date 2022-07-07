@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{fmt::format, path::PathBuf, sync::Arc};
 
 use agatedb::{AgateOptions, ChecksumVerificationMode::NoVerification};
 use anyhow::Result;
@@ -17,6 +17,13 @@ macro_rules! str {
 }
 
 str!(db_path, ls, prefix, set, key, val, get);
+
+fn display(bytes: &[u8]) -> String {
+    match std::str::from_utf8(bytes) {
+        Ok(s) => format!("{:?}", s),
+        _ => format!("{:?}", bytes),
+    }
+}
 
 macro_rules! get {
     ($matches:expr, $key:expr) => {{ $matches.get_one::<String>($key) }};
@@ -70,11 +77,12 @@ fn main() -> Result<()> {
                 let key = get!(matches, KEY).unwrap().as_bytes();
                 let value = db.get(key)?;
                 dbg!(&value);
-                let key = match std::str::from_utf8(key) {
-                    Ok(k) => k.into(),
-                    _ => format!("{:?}", key),
+                let value = if value.version == 0 {
+                    "None".into()
+                } else {
+                    display(&value.value)
                 };
-                println!("\n{} → {:?}", key, value.value)
+                println!("\n{} → {}", display(key), value);
             }
             _ => {
                 unreachable!("unkown cmd");
